@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Space_Grotesk } from "next/font/google";
+import { BottomNav } from "@/components/BottomNav";
 import { TopNav } from "@/components/TopNav";
 import "./globals.css";
 
@@ -30,7 +31,8 @@ export default function RootLayout({
         className={`${inter.variable} ${spaceGrotesk.variable} min-h-screen bg-background font-sans text-foreground antialiased`}
       >
         <TopNav />
-        <main>{children}</main>
+        <main className="pb-20 md:pb-0">{children}</main>
+        <BottomNav />
       </body>
     </html>
   );

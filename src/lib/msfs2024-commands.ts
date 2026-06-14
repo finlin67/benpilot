@@ -1,0 +1,208 @@
+export type Command = {
+  action: string;
+  keys: string;
+  category: string;
+};
+
+export const CATEGORIES = [
+  "Tools",
+  "Power",
+  "Brakes",
+  "Landing Gear",
+  "Flight Controls",
+  "Autopilot",
+  "Instruments",
+  "Lights",
+  "Camera",
+  "Comms",
+] as const;
+
+export type CommandCategory = (typeof CATEGORIES)[number];
+
+export const MUST_KNOW_ACTIONS = [
+  "Auto Start Engine",
+  "Toggle Parking Brakes",
+  "Brakes (hold to apply)",
+  "Toggle Landing Gear",
+  "Toggle Active Pause",
+  "Toggle Taxi Ribbon (ground guide line)",
+  "Back on Track (teleport to path)",
+  "Cockpit / External View Toggle",
+] as const;
+
+export const MSFS2024_COMMANDS: Command[] = [
+  { action: "Toggle Active Pause", keys: "P", category: "Tools" },
+  { action: "Toggle Pause / Menu", keys: "ESC", category: "Tools" },
+  { action: "Toggle EFB (cockpit tablet)", keys: "TAB", category: "Tools" },
+  { action: "Toggle Pushback", keys: "ALT + P", category: "Tools" },
+  { action: "Back to Fly", keys: "ALT + SPACE", category: "Tools" },
+  { action: "Sim Rate", keys: "ALT + R", category: "Tools" },
+  {
+    action: "Toggle Taxi Ribbon (ground guide line)",
+    keys: "ALT + 3",
+    category: "Tools",
+  },
+  { action: "Toggle Landing Ribbon", keys: "ALT + 4", category: "Tools" },
+  { action: "Toggle Flight Assistant", keys: "ALT + 1", category: "Tools" },
+  { action: "Toggle Nameplates", keys: "ALT + 2", category: "Tools" },
+  { action: "Back on Track (teleport to path)", keys: "SHIFT + B", category: "Tools" },
+  { action: "Next Flight Phase", keys: "ALT + N", category: "Tools" },
+
+  { action: "Auto Start Engine", keys: "CTRL + E", category: "Power" },
+  { action: "Engine Autostop", keys: "CTRL + SHIFT + E", category: "Power" },
+  { action: "Increase Throttle", keys: "R", category: "Power" },
+  { action: "Decrease Throttle", keys: "F", category: "Power" },
+  { action: "Throttle Next Detent", keys: "CTRL + R", category: "Power" },
+  { action: "Throttle Previous Detent", keys: "CTRL + F", category: "Power" },
+  { action: "Increase Mixture", keys: "Y", category: "Power" },
+  { action: "Decrease Mixture", keys: "H", category: "Power" },
+  { action: "Set Mixture Rich", keys: "CTRL + Y", category: "Power" },
+  { action: "Set Mixture Lean", keys: "CTRL + H", category: "Power" },
+  { action: "Increase Propeller Pitch", keys: "T", category: "Power" },
+  { action: "Decrease Propeller Pitch", keys: "G", category: "Power" },
+
+  { action: "Toggle Parking Brakes", keys: "CTRL + SPACE", category: "Brakes" },
+  { action: "Brakes (hold to apply)", keys: "SPACE", category: "Brakes" },
+  { action: "Left Brake", keys: "NUM /", category: "Brakes" },
+  { action: "Right Brake", keys: "NUM *", category: "Brakes" },
+
+  { action: "Toggle Landing Gear", keys: "/", category: "Landing Gear" },
+
+  { action: "Aileron Left (roll left)", keys: "A", category: "Flight Controls" },
+  { action: "Aileron Right (roll right)", keys: "D", category: "Flight Controls" },
+  { action: "Elevator Up (pitch up)", keys: "S", category: "Flight Controls" },
+  { action: "Elevator Down (pitch down)", keys: "W", category: "Flight Controls" },
+  { action: "Rudder Left (yaw left)", keys: "Q", category: "Flight Controls" },
+  { action: "Rudder Right (yaw right)", keys: "E", category: "Flight Controls" },
+  { action: "Center Aileron / Rudder", keys: "NUM 5", category: "Flight Controls" },
+  { action: "Toggle AutoRudder", keys: "CTRL + P", category: "Flight Controls" },
+  { action: "Elevator Trim Up (nose up)", keys: "K", category: "Flight Controls" },
+  { action: "Elevator Trim Down (nose down)", keys: "I", category: "Flight Controls" },
+  { action: "Aileron Trim Left", keys: "J", category: "Flight Controls" },
+  { action: "Aileron Trim Right", keys: "L", category: "Flight Controls" },
+  { action: "Rudder Trim Left", keys: "U", category: "Flight Controls" },
+  { action: "Rudder Trim Right", keys: "O", category: "Flight Controls" },
+  { action: "Increase Flaps (one notch)", keys: "B", category: "Flight Controls" },
+  { action: "Decrease Flaps (one notch)", keys: "V", category: "Flight Controls" },
+  { action: "Extend Flaps (full)", keys: "CTRL + B", category: "Flight Controls" },
+  { action: "Retract Flaps (full)", keys: "CTRL + V", category: "Flight Controls" },
+  { action: "Toggle Arm Spoilers", keys: "CTRL + \\", category: "Flight Controls" },
+  { action: "Increment Spoilers", keys: "N", category: "Flight Controls" },
+  { action: "Decrement Spoilers", keys: "M", category: "Flight Controls" },
+  { action: "Extend Spoilers", keys: "CTRL + M", category: "Flight Controls" },
+  { action: "Retract Spoilers", keys: "CTRL + N", category: "Flight Controls" },
+
+  { action: "Toggle Autopilot Master", keys: "CTRL + 1", category: "Autopilot" },
+  { action: "Toggle Disengage Autopilot", keys: "CTRL + 2", category: "Autopilot" },
+  { action: "Autopilot Airspeed Hold", keys: "CTRL + F1", category: "Autopilot" },
+  {
+    action: "Toggle Autopilot Altitude Hold",
+    keys: "CTRL + F2",
+    category: "Autopilot",
+  },
+  {
+    action: "Toggle Autopilot Approach Hold",
+    keys: "CTRL + F3",
+    category: "Autopilot",
+  },
+  {
+    action: "Toggle Autopilot Attitude Hold",
+    keys: "CTRL + F4",
+    category: "Autopilot",
+  },
+  {
+    action: "Toggle Autopilot Heading Hold",
+    keys: "CTRL + F5",
+    category: "Autopilot",
+  },
+  { action: "Toggle Autopilot VS Hold", keys: "CTRL + F8", category: "Autopilot" },
+  {
+    action: "Toggle Autopilot Wing Leveler",
+    keys: "CTRL + F12",
+    category: "Autopilot",
+  },
+  {
+    action: "Increase Autopilot Reference Altitude",
+    keys: "CTRL + PAGE UP",
+    category: "Autopilot",
+  },
+  {
+    action: "Decrease Autopilot Reference Altitude",
+    keys: "CTRL + PAGE DOWN",
+    category: "Autopilot",
+  },
+
+  { action: "Toggle G Limiter", keys: "Z", category: "Instruments" },
+  {
+    action: "Toggle Master Battery and Alternator",
+    keys: "CTRL + Z",
+    category: "Instruments",
+  },
+  { action: "Toggle Avionics Master", keys: "CTRL + X", category: "Instruments" },
+  { action: "Set Altimeter", keys: ",", category: "Instruments" },
+  {
+    action: "Toggle Delegate Control to Copilot",
+    keys: "ALT + C",
+    category: "Instruments",
+  },
+  { action: "Select Airspeed Bug", keys: "CTRL + 3", category: "Instruments" },
+  { action: "Select Altitude Bug", keys: "CTRL + 4", category: "Instruments" },
+  { action: "Select Heading Bug", keys: "CTRL + 5", category: "Instruments" },
+
+  { action: "All Lights Toggle", keys: ";", category: "Lights" },
+  { action: "Toggle Flashlight", keys: "ALT + F", category: "Lights" },
+
+  {
+    action: "Cockpit / External View Toggle",
+    keys: "BACKSPACE",
+    category: "Camera",
+  },
+  { action: "Reset Cockpit View", keys: "SHIFT + SPACE", category: "Camera" },
+  { action: "Cockpit Look Left", keys: "SHIFT + J", category: "Camera" },
+  { action: "Cockpit Look Right", keys: "SHIFT + L", category: "Camera" },
+  { action: "Cockpit Look Up", keys: "SHIFT + I", category: "Camera" },
+  { action: "Cockpit Look Down", keys: "SHIFT + K", category: "Camera" },
+  { action: "Cockpit QuickView Left", keys: "SHIFT + F", category: "Camera" },
+  { action: "Cockpit QuickView Right", keys: "SHIFT + H", category: "Camera" },
+  { action: "Zoom Cockpit View", keys: "SHIFT + O", category: "Camera" },
+  { action: "Unzoom Cockpit View", keys: "SHIFT + U", category: "Camera" },
+  { action: "Toggle Drone Camera", keys: "SHIFT + X", category: "Camera" },
+  { action: "External QuickView Left", keys: "SHIFT + H", category: "Camera" },
+  { action: "External QuickView Right", keys: "SHIFT + F", category: "Camera" },
+  { action: "External QuickView Rear", keys: "SHIFT + T", category: "Camera" },
+  { action: "Zoom External View", keys: "SHIFT + O", category: "Camera" },
+  { action: "Unzoom External View", keys: "SHIFT + U", category: "Camera" },
+  { action: "Load Custom Camera 1", keys: "SHIFT + F1", category: "Camera" },
+  { action: "Load Custom Camera 2", keys: "SHIFT + F2", category: "Camera" },
+  { action: "Load Custom Camera 3", keys: "SHIFT + F3", category: "Camera" },
+  { action: "Load Custom Camera 4", keys: "SHIFT + F4", category: "Camera" },
+  { action: "Toggle IFR Cockpit Mode", keys: "SHIFT + F9", category: "Camera" },
+  { action: "Toggle VFR Cockpit Mode", keys: "SHIFT + F10", category: "Camera" },
+  {
+    action: "Toggle Landing Cockpit Mode",
+    keys: "SHIFT + F11",
+    category: "Camera",
+  },
+  { action: "Toggle Slew Mode", keys: "SHIFT + Z", category: "Camera" },
+
+  { action: "Open Communications Panel", keys: "\\", category: "Comms" },
+  { action: "Quick Reply (ATC)", keys: "ENTER", category: "Comms" },
+  { action: "ATC Panel Choice 1", keys: "1", category: "Comms" },
+  { action: "ATC Panel Choice 2", keys: "2", category: "Comms" },
+  { action: "ATC Panel Choice 3", keys: "3", category: "Comms" },
+  { action: "ATC Panel Choice 4", keys: "4", category: "Comms" },
+  { action: "ATC Panel Choice 5", keys: "5", category: "Comms" },
+];
+
+export const CATEGORY_COLORS: Record<CommandCategory, string> = {
+  Tools: "bg-blue-500/20 text-blue-300 border-blue-500/40",
+  Power: "bg-green-500/20 text-green-300 border-green-500/40",
+  Brakes: "bg-red-500/20 text-red-300 border-red-500/40",
+  "Landing Gear": "bg-amber-500/20 text-amber-300 border-amber-500/40",
+  "Flight Controls": "bg-purple-500/20 text-purple-300 border-purple-500/40",
+  Autopilot: "bg-emerald-500/20 text-emerald-300 border-emerald-500/40",
+  Instruments: "bg-slate-500/20 text-slate-300 border-slate-500/40",
+  Lights: "bg-yellow-500/20 text-yellow-200 border-yellow-500/40",
+  Camera: "bg-orange-500/20 text-orange-300 border-orange-500/40",
+  Comms: "bg-pink-500/20 text-pink-300 border-pink-500/40",
+};

@@ -3,6 +3,8 @@ import {
   BookOpen,
   Gamepad2,
   Joystick,
+  Search,
+  Users,
   type LucideIcon,
 } from "lucide-react";
 
@@ -70,6 +72,20 @@ export default function Home() {
             title="Controls"
             description="Learn the keyboard and buttons for every flight phase."
             icon={Joystick}
+            accent="sky"
+          />
+          <NavCard
+            href="/commands"
+            title="Commands"
+            description="Search every MSFS 2024 keyboard shortcut in one place."
+            icon={Search}
+            accent="amber"
+          />
+          <NavCard
+            href="/trainer"
+            title="Trainer"
+            description="Flashcard trainer — quiz a friend on the controls."
+            icon={Users}
             accent="sky"
           />
           <NavCard
