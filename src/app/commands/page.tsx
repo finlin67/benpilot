@@ -1,26 +1,27 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Search, Star } from "lucide-react";
 import { KeyComboBadges } from "@/components/KeyComboBadges";
 import {
   CATEGORIES,
   CATEGORY_COLORS,
+  isMustKnowAction,
   MSFS2024_COMMANDS,
-  MUST_KNOW_ACTIONS,
   type Command,
   type CommandCategory,
 } from "@/lib/msfs2024-commands";
+import { readLocalStorage, writeLocalStorage } from "@/lib/storage";
 import { cn } from "@/lib/utils";
 
 const STARRED_KEY = "msfs_starred";
+const SEARCH_INPUT_ID = "commands-search";
 
 function loadStarred(): Set<string> {
-  if (typeof window === "undefined") return new Set();
+  const raw = readLocalStorage(STARRED_KEY);
+  if (!raw) return new Set();
 
   try {
-    const raw = localStorage.getItem(STARRED_KEY);
-    if (!raw) return new Set();
     const parsed = JSON.parse(raw) as string[];
     return new Set(parsed);
   } catch {
@@ -29,7 +30,7 @@ function loadStarred(): Set<string> {
 }
 
 function saveStarred(starred: Set<string>) {
-  localStorage.setItem(STARRED_KEY, JSON.stringify(Array.from(starred)));
+  writeLocalStorage(STARRED_KEY, JSON.stringify(Array.from(starred)));
 }
 
 function matchesSearch(command: Command, query: string): boolean {
@@ -50,7 +51,6 @@ export default function CommandsPage() {
   );
   const [starred, setStarred] = useState<Set<string>>(new Set());
   const [hydrated, setHydrated] = useState(false);
-  const searchRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setStarred(loadStarred());
@@ -65,12 +65,12 @@ export default function CommandsPage() {
   const filtered = useMemo(() => {
     return MSFS2024_COMMANDS.filter((command) => {
       const categoryMatch =
-        activeCategories.size === 0 || activeCategories.has(command.category as CommandCategory);
+        activeCategories.size === 0 || activeCategories.has(command.category);
       return categoryMatch && matchesSearch(command, search);
     });
   }, [search, activeCategories]);
 
-  const toggleCategory = (category: CommandCategory) => {
+  const toggleCategory = useCallback((category: CommandCategory) => {
     setActiveCategories((prev) => {
       const next = new Set(prev);
       if (next.has(category)) {
@@ -80,11 +80,11 @@ export default function CommandsPage() {
       }
       return next;
     });
-  };
+  }, []);
 
-  const clearCategories = () => setActiveCategories(new Set());
+  const clearCategories = useCallback(() => setActiveCategories(new Set()), []);
 
-  const toggleStar = (action: string) => {
+  const toggleStar = useCallback((action: string) => {
     setStarred((prev) => {
       const next = new Set(prev);
       if (next.has(action)) {
@@ -94,10 +94,7 @@ export default function CommandsPage() {
       }
       return next;
     });
-  };
-
-  const isMustKnow = (action: string) =>
-    (MUST_KNOW_ACTIONS as readonly string[]).includes(action);
+  }, []);
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
@@ -111,13 +108,14 @@ export default function CommandsPage() {
       </header>
 
       <div className="sticky top-16 z-40 -mx-4 mb-6 border-b border-card-border bg-background/95 px-4 py-4 backdrop-blur-sm sm:-mx-6 sm:px-6">
-        <label className="relative block">
+        <label htmlFor={SEARCH_INPUT_ID} className="relative block">
+          <span className="sr-only">Search commands</span>
           <Search
             className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-foreground/50"
             aria-hidden
           />
           <input
-            ref={searchRef}
+            id={SEARCH_INPUT_ID}
             type="search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -126,12 +124,17 @@ export default function CommandsPage() {
           />
         </label>
 
-        <div className="mt-3 flex flex-wrap gap-2">
+        <div
+          className="mt-3 flex gap-2 overflow-x-auto pb-1"
+          role="group"
+          aria-label="Filter by category"
+        >
           <button
             type="button"
             onClick={clearCategories}
+            aria-pressed={activeCategories.size === 0}
             className={cn(
-              "rounded-full border px-3 py-1.5 font-heading text-sm font-semibold transition-colors",
+              "shrink-0 rounded-full border px-4 py-2.5 font-heading text-sm font-semibold transition-colors min-h-11",
               activeCategories.size === 0
                 ? "border-accent-sky bg-accent-sky/20 text-accent-sky"
                 : "border-card-border bg-card text-foreground/70 hover:border-accent-sky/40"
@@ -144,8 +147,9 @@ export default function CommandsPage() {
               key={category}
               type="button"
               onClick={() => toggleCategory(category)}
+              aria-pressed={activeCategories.has(category)}
               className={cn(
-                "rounded-full border px-3 py-1.5 font-heading text-sm font-semibold transition-colors",
+                "shrink-0 rounded-full border px-4 py-2.5 font-heading text-sm font-semibold transition-colors min-h-11",
                 activeCategories.has(category)
                   ? "border-accent-sky bg-accent-sky/20 text-accent-sky"
                   : "border-card-border bg-card text-foreground/70 hover:border-accent-sky/40"
@@ -173,6 +177,7 @@ export default function CommandsPage() {
             <thead>
               <tr className="border-b border-card-border bg-background/50">
                 <th className="w-12 px-4 py-3 text-sm font-semibold text-foreground/60">
+                  <span className="sr-only">Favourite</span>
                   ★
                 </th>
                 <th className="px-4 py-3 font-heading text-sm font-semibold text-foreground/80">
@@ -200,13 +205,15 @@ export default function CommandsPage() {
                         type="button"
                         onClick={() => toggleStar(command.action)}
                         className={cn(
-                          "flex h-10 w-10 items-center justify-center rounded-lg transition-colors",
+                          "flex h-11 w-11 items-center justify-center rounded-lg transition-colors",
                           isStarred
                             ? "text-accent-amber"
                             : "text-foreground/30 hover:text-foreground/60"
                         )}
                         aria-label={
-                          isStarred ? "Unstar command" : "Star command"
+                          isStarred
+                            ? `Unstar ${command.action}`
+                            : `Star ${command.action}`
                         }
                       >
                         <Star
@@ -219,7 +226,7 @@ export default function CommandsPage() {
                         <span className="font-heading text-sm font-bold text-foreground sm:text-base">
                           {command.action}
                         </span>
-                        {isMustKnow(command.action) && (
+                        {isMustKnowAction(command.action) && (
                           <span className="rounded-full border border-accent-amber/40 bg-accent-amber/15 px-2 py-0.5 text-xs font-bold text-accent-amber">
                             ⭐ Must Know
                           </span>
@@ -233,7 +240,7 @@ export default function CommandsPage() {
                       <span
                         className={cn(
                           "inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold",
-                          CATEGORY_COLORS[command.category as CommandCategory]
+                          CATEGORY_COLORS[command.category]
                         )}
                       >
                         {command.category}

@@ -1,3 +1,5 @@
+import { readLocalStorage, writeLocalStorage } from "@/lib/storage";
+
 const SOUND_PREF_KEY = "pilotben-sounds-enabled";
 
 let audioContext: AudioContext | null = null;
@@ -5,31 +7,35 @@ let audioContext: AudioContext | null = null;
 function getAudioContext(): AudioContext | null {
   if (typeof window === "undefined") return null;
 
-  if (!audioContext) {
-    audioContext = new AudioContext();
-  }
+  try {
+    if (!audioContext) {
+      audioContext = new AudioContext();
+    }
 
-  if (audioContext.state === "suspended") {
-    void audioContext.resume();
-  }
+    if (audioContext.state === "suspended") {
+      void audioContext.resume();
+    }
 
-  return audioContext;
+    return audioContext;
+  } catch {
+    return null;
+  }
 }
 
 export function isSoundEnabled(): boolean {
-  if (typeof window === "undefined") return false;
-
-  try {
-    return localStorage.getItem(SOUND_PREF_KEY) === "true";
-  } catch {
-    return false;
-  }
+  return readLocalStorage(SOUND_PREF_KEY) === "true";
 }
 
 export function setSoundEnabled(enabled: boolean) {
-  if (typeof window === "undefined") return;
-  localStorage.setItem(SOUND_PREF_KEY, String(enabled));
-  window.dispatchEvent(new CustomEvent("pilotben-sound-pref-change"));
+  writeLocalStorage(SOUND_PREF_KEY, String(enabled));
+
+  if (typeof window !== "undefined") {
+    try {
+      window.dispatchEvent(new CustomEvent("pilotben-sound-pref-change"));
+    } catch {
+      // Ignore if dispatch fails in restricted environments.
+    }
+  }
 }
 
 function playTone(
@@ -54,21 +60,25 @@ function playTone(
     decay = duration,
   } = options;
 
-  const oscillator = ctx.createOscillator();
-  const gain = ctx.createGain();
+  try {
+    const oscillator = ctx.createOscillator();
+    const gain = ctx.createGain();
 
-  oscillator.type = type;
-  oscillator.frequency.setValueAtTime(frequency, ctx.currentTime);
+    oscillator.type = type;
+    oscillator.frequency.setValueAtTime(frequency, ctx.currentTime);
 
-  gain.gain.setValueAtTime(0, ctx.currentTime);
-  gain.gain.linearRampToValueAtTime(volume, ctx.currentTime + attack);
-  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + decay);
+    gain.gain.setValueAtTime(0, ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(volume, ctx.currentTime + attack);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + decay);
 
-  oscillator.connect(gain);
-  gain.connect(ctx.destination);
+    oscillator.connect(gain);
+    gain.connect(ctx.destination);
 
-  oscillator.start(ctx.currentTime);
-  oscillator.stop(ctx.currentTime + decay + 0.05);
+    oscillator.start(ctx.currentTime);
+    oscillator.stop(ctx.currentTime + decay + 0.05);
+  } catch {
+    // Web Audio unavailable.
+  }
 }
 
 export function playClick() {
@@ -77,22 +87,26 @@ export function playClick() {
   const ctx = getAudioContext();
   if (!ctx) return;
 
-  const oscillator = ctx.createOscillator();
-  const gain = ctx.createGain();
+  try {
+    const oscillator = ctx.createOscillator();
+    const gain = ctx.createGain();
 
-  oscillator.type = "square";
-  oscillator.frequency.setValueAtTime(880, ctx.currentTime);
-  oscillator.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.04);
+    oscillator.type = "square";
+    oscillator.frequency.setValueAtTime(880, ctx.currentTime);
+    oscillator.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.04);
 
-  gain.gain.setValueAtTime(0, ctx.currentTime);
-  gain.gain.linearRampToValueAtTime(0.06, ctx.currentTime + 0.005);
-  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.06);
+    gain.gain.setValueAtTime(0, ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(0.06, ctx.currentTime + 0.005);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.06);
 
-  oscillator.connect(gain);
-  gain.connect(ctx.destination);
+    oscillator.connect(gain);
+    gain.connect(ctx.destination);
 
-  oscillator.start(ctx.currentTime);
-  oscillator.stop(ctx.currentTime + 0.08);
+    oscillator.start(ctx.currentTime);
+    oscillator.stop(ctx.currentTime + 0.08);
+  } catch {
+    // Web Audio unavailable.
+  }
 }
 
 export function playDing() {

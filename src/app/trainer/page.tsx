@@ -16,10 +16,7 @@ type Direction = "key-to-action" | "action-to-key";
 const RECENT_HISTORY_SIZE = 5;
 const CARD_TRANSITION_MS = 300;
 
-function pickRandomCard(
-  pool: Command[],
-  recent: string[]
-): Command | null {
+function pickRandomCard(pool: Command[], recent: string[]): Command | null {
   if (pool.length === 0) return null;
 
   const recentSet = new Set(recent);
@@ -47,29 +44,7 @@ export default function TrainerPage() {
     return MSFS2024_COMMANDS.filter((command) => command.category === category);
   }, [category]);
 
-  const loadNewCard = useCallback(
-    (recentOverride?: string[]) => {
-      const card = pickRandomCard(pool, recentOverride ?? recentActions);
-      if (!card) return;
-
-      setFadeIn(false);
-      setTimeout(() => {
-        setCurrentCard(card);
-        setRevealed(false);
-        setRecentActions((prev) => {
-          const next = [card.action, ...prev.filter((a) => a !== card.action)];
-          return next.slice(0, RECENT_HISTORY_SIZE);
-        });
-        setFadeIn(true);
-      }, CARD_TRANSITION_MS);
-    },
-    [pool, recentActions]
-  );
-
-  const handleNewCard = () => {
-    const card = pickRandomCard(pool, recentActions);
-    if (!card) return;
-
+  const applyNewCard = useCallback((card: Command) => {
     setCurrentCard(card);
     setRevealed(false);
     setRecentActions((prev) => {
@@ -77,23 +52,45 @@ export default function TrainerPage() {
       return next.slice(0, RECENT_HISTORY_SIZE);
     });
     setFadeIn(true);
-  };
+  }, []);
 
-  const handleReveal = () => setRevealed(true);
+  const loadNewCard = useCallback(
+    (recentOverride?: string[]) => {
+      const card = pickRandomCard(pool, recentOverride ?? recentActions);
+      if (!card) return;
 
-  const handleResult = (gotIt: boolean) => {
-    setAttempts((a) => a + 1);
-    if (gotIt) setCorrect((c) => c + 1);
+      setFadeIn(false);
+      window.setTimeout(() => {
+        applyNewCard(card);
+      }, CARD_TRANSITION_MS);
+    },
+    [applyNewCard, pool, recentActions]
+  );
 
-    setTimeout(() => {
-      loadNewCard();
-    }, CARD_TRANSITION_MS);
-  };
+  const handleNewCard = useCallback(() => {
+    const card = pickRandomCard(pool, recentActions);
+    if (!card) return;
+    applyNewCard(card);
+  }, [applyNewCard, pool, recentActions]);
 
-  const resetScore = () => {
+  const handleReveal = useCallback(() => setRevealed(true), []);
+
+  const handleResult = useCallback(
+    (gotIt: boolean) => {
+      setAttempts((a) => a + 1);
+      if (gotIt) setCorrect((c) => c + 1);
+
+      window.setTimeout(() => {
+        loadNewCard();
+      }, CARD_TRANSITION_MS);
+    },
+    [loadNewCard]
+  );
+
+  const resetScore = useCallback(() => {
     setCorrect(0);
     setAttempts(0);
-  };
+  }, []);
 
   const scorePercent = attempts > 0 ? (correct / attempts) * 100 : 0;
 
@@ -118,7 +115,8 @@ export default function TrainerPage() {
             onChange={(e) =>
               setCategory(e.target.value as CommandCategory | "all")
             }
-            className="min-h-[3rem] rounded-xl border-2 border-card-border bg-card px-3 font-sans text-base text-foreground focus:border-accent-sky focus:outline-none"
+            className="min-h-11 rounded-xl border-2 border-card-border bg-card px-3 font-sans text-base text-foreground focus:border-accent-sky focus:outline-none"
+            aria-label="Filter by category"
           >
             <option value="all">All categories</option>
             {CATEGORIES.map((cat) => (
@@ -136,7 +134,8 @@ export default function TrainerPage() {
           <select
             value={direction}
             onChange={(e) => setDirection(e.target.value as Direction)}
-            className="min-h-[3rem] rounded-xl border-2 border-card-border bg-card px-3 font-sans text-base text-foreground focus:border-accent-sky focus:outline-none"
+            className="min-h-11 rounded-xl border-2 border-card-border bg-card px-3 font-sans text-base text-foreground focus:border-accent-sky focus:outline-none"
+            aria-label="Question direction"
           >
             <option value="key-to-action">Key → What does it do?</option>
             <option value="action-to-key">Action → What key?</option>
@@ -146,7 +145,7 @@ export default function TrainerPage() {
         <button
           type="button"
           onClick={handleNewCard}
-          className="min-h-[3rem] rounded-xl border-2 border-accent-sky bg-accent-sky/20 px-6 font-heading font-bold text-accent-sky transition-all hover:bg-accent-sky/30 active:scale-[0.98]"
+          className="min-h-11 rounded-xl border-2 border-accent-sky bg-accent-sky/20 px-6 font-heading font-bold text-accent-sky transition-all hover:bg-accent-sky/30 active:scale-[0.98]"
         >
           New Card
         </button>
@@ -160,12 +159,20 @@ export default function TrainerPage() {
           <button
             type="button"
             onClick={resetScore}
-            className="text-sm font-semibold text-accent-sky hover:underline"
+            className="min-h-11 min-w-11 px-3 text-sm font-semibold text-accent-sky hover:underline"
+            aria-label="Reset score"
           >
             Reset
           </button>
         </div>
-        <div className="h-2.5 overflow-hidden rounded-full bg-background">
+        <div
+          className="h-2.5 overflow-hidden rounded-full bg-background"
+          role="progressbar"
+          aria-valuenow={Math.round(scorePercent)}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label="Score progress"
+        >
           <div
             className="h-full rounded-full bg-green-500 transition-all duration-300"
             style={{ width: `${scorePercent}%` }}
@@ -187,7 +194,7 @@ export default function TrainerPage() {
             <button
               type="button"
               onClick={handleNewCard}
-              className="mt-6 min-h-[3rem] rounded-xl border-2 border-accent-sky bg-accent-sky/20 px-8 font-heading font-bold text-accent-sky transition-all hover:bg-accent-sky/30 active:scale-[0.98]"
+              className="mt-6 min-h-11 rounded-xl border-2 border-accent-sky bg-accent-sky/20 px-8 font-heading font-bold text-accent-sky transition-all hover:bg-accent-sky/30 active:scale-[0.98]"
             >
               New Card
             </button>
@@ -197,7 +204,7 @@ export default function TrainerPage() {
             <span
               className={cn(
                 "inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold",
-                CATEGORY_COLORS[currentCard.category as CommandCategory]
+                CATEGORY_COLORS[currentCard.category]
               )}
             >
               {currentCard.category}
@@ -230,7 +237,7 @@ export default function TrainerPage() {
                 <button
                   type="button"
                   onClick={handleReveal}
-                  className="min-h-[3rem] rounded-xl border-2 border-accent-sky bg-accent-sky/20 px-8 font-heading text-lg font-bold text-accent-sky transition-all hover:bg-accent-sky/30 active:scale-[0.98]"
+                  className="min-h-11 rounded-xl border-2 border-accent-sky bg-accent-sky/20 px-8 font-heading text-lg font-bold text-accent-sky transition-all hover:bg-accent-sky/30 active:scale-[0.98]"
                 >
                   Show Answer
                 </button>
@@ -256,14 +263,14 @@ export default function TrainerPage() {
                   <button
                     type="button"
                     onClick={() => handleResult(true)}
-                    className="min-h-[3rem] flex-1 rounded-xl border-2 border-green-500 bg-green-500/20 px-6 font-heading text-lg font-bold text-green-400 transition-all hover:bg-green-500/30 active:scale-[0.98] sm:max-w-[12rem]"
+                    className="min-h-11 flex-1 rounded-xl border-2 border-green-500 bg-green-500/20 px-6 font-heading text-lg font-bold text-green-400 transition-all hover:bg-green-500/30 active:scale-[0.98] sm:max-w-[12rem]"
                   >
                     Got it ✓
                   </button>
                   <button
                     type="button"
                     onClick={() => handleResult(false)}
-                    className="min-h-[3rem] flex-1 rounded-xl border-2 border-red-500 bg-red-500/20 px-6 font-heading text-lg font-bold text-red-400 transition-all hover:bg-red-500/30 active:scale-[0.98] sm:max-w-[12rem]"
+                    className="min-h-11 flex-1 rounded-xl border-2 border-red-500 bg-red-500/20 px-6 font-heading text-lg font-bold text-red-400 transition-all hover:bg-red-500/30 active:scale-[0.98] sm:max-w-[12rem]"
                   >
                     Missed it ✗
                   </button>

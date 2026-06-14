@@ -100,8 +100,9 @@ export function PhaseCheatsheet({
         <button
           type="button"
           onClick={() => setExpanded((open) => !open)}
-          className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left sm:px-5"
+          className="flex min-h-11 w-full items-center justify-between gap-3 px-4 py-3 text-left sm:px-5"
           aria-expanded={expanded}
+          aria-label={`${expanded ? "Collapse" : "Expand"} quick cheatsheet`}
         >
           <span className="flex items-center gap-2">
             <span className="flex h-9 w-9 items-center justify-center rounded-lg border border-accent-sky/40 bg-accent-sky/15 text-accent-sky">

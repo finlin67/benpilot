@@ -12,7 +12,7 @@ export function SoundToggle() {
       type="button"
       onClick={toggle}
       className={cn(
-        "flex h-10 w-10 items-center justify-center rounded-lg border border-card-border transition-colors hover:bg-card",
+        "flex h-11 w-11 items-center justify-center rounded-lg border border-card-border transition-colors hover:bg-card",
         enabled ? "text-accent-sky" : "text-foreground/50"
       )}
       aria-label={enabled ? "Mute sounds" : "Enable sounds"}

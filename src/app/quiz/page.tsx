@@ -96,18 +96,21 @@ export default function QuizPage() {
     setScreen("question");
   };
 
-  const handleAnswer = (index: number) => {
-    if (selectedIndex !== null || !currentQuestion) return;
+  const handleAnswer = useCallback(
+    (index: number) => {
+      if (selectedIndex !== null || !currentQuestion) return;
 
-    setSelectedIndex(index);
-    if (index === currentQuestion.correctIndex) {
-      setScore((s) => s + 1);
-      playCorrect();
-    } else {
-      playWrong();
-    }
-    setScreen("feedback");
-  };
+      setSelectedIndex(index);
+      if (index === currentQuestion.correctIndex) {
+        setScore((s) => s + 1);
+        playCorrect();
+      } else {
+        playWrong();
+      }
+      setScreen("feedback");
+    },
+    [currentQuestion, playCorrect, playWrong, selectedIndex]
+  );
 
   const goToNextQuestion = useCallback(() => {
     if (currentIndex + 1 >= totalQuestions) {

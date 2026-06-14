@@ -1,9 +1,3 @@
-export type Command = {
-  action: string;
-  keys: string;
-  category: string;
-};
-
 export const CATEGORIES = [
   "Tools",
   "Power",
@@ -18,6 +12,12 @@ export const CATEGORIES = [
 ] as const;
 
 export type CommandCategory = (typeof CATEGORIES)[number];
+
+export type Command = {
+  action: string;
+  keys: string;
+  category: CommandCategory;
+};
 
 export const MUST_KNOW_ACTIONS = [
   "Auto Start Engine",
@@ -206,3 +206,9 @@ export const CATEGORY_COLORS: Record<CommandCategory, string> = {
   Camera: "bg-orange-500/20 text-orange-300 border-orange-500/40",
   Comms: "bg-pink-500/20 text-pink-300 border-pink-500/40",
 };
+
+const mustKnowSet = new Set<string>(MUST_KNOW_ACTIONS);
+
+export function isMustKnowAction(action: string): boolean {
+  return mustKnowSet.has(action);
+}

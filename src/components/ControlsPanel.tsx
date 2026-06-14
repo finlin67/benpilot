@@ -52,7 +52,7 @@ export function ControlsPanel() {
                 onClick={() => setActivePhase(p.id)}
                 className={cn(
                   "flex shrink-0 items-center gap-2 rounded-xl border px-4 py-3 font-heading text-sm font-semibold transition-all sm:text-base",
-                  "min-h-[3rem] active:scale-[0.98]",
+                  "min-h-11 active:scale-[0.98]",
                   isActive
                     ? "border-accent-sky bg-accent-sky/15 text-accent-sky shadow-[0_0_16px_rgba(56,189,248,0.2)]"
                     : "border-card-border bg-card text-foreground/80 hover:border-accent-sky/40 hover:text-foreground"
